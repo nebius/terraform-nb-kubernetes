@@ -261,7 +261,7 @@ variable "node_groups" {
             size = 3
           }
           labels        = {
-            owner       = "yandex"
+            owner       = "nebius"
             service     = "kubernetes"
           }
           node_labels   = {
