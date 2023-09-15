@@ -2,7 +2,7 @@
 
 ## Features
 
-- Create Kubernetes cluster of two types: zonal or regional 
+- Create zonal Kubernetes cluster  
 - Create user defined Kubernetes node groups
 - Create service accounts and KMS encryption key for Kubernetes cluster
 - Easy to use in other resources via outputs
