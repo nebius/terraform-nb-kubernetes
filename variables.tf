@@ -216,7 +216,7 @@ variable "timeouts" {
 #
 variable "node_groups" {
   description = <<EOF
-    Kubernetes node groups map of maps. It could contain all parameters of yandex_kubernetes_node_group resource,
+    Kubernetes node groups map of maps. It could contain all parameters of nebius_kubernetes_node_group resource,
     many of them could be NULL and have default values.
 
     Notes:
@@ -229,7 +229,7 @@ variable "node_groups" {
      - Master maintenance windows will be used for Node groups also!
      - Only one max_expansion OR max_unavailable values should be specified for the deployment policy.
     
-    Documentation - https://registry.terraform.io/providers/yandex-cloud/yandex/latest/docs/resources/kubernetes_node_group
+    Documentation - https://registry.terraform.io/providers/nebius-cloud/nebius/latest/docs/resources/kubernetes_node_group
     
     Default values:
     ```

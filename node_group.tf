@@ -13,10 +13,10 @@ locals {
   master_locations_subnets_ids = concat(flatten([for location in var.master_locations : location.subnet_id]))
 }
 
-resource "yandex_kubernetes_node_group" "kube_node_groups" {
+resource "nebius_kubernetes_node_group" "kube_node_groups" {
   for_each = var.node_groups
 
-  cluster_id  = yandex_kubernetes_cluster.kube_cluster.id
+  cluster_id  = nebius_kubernetes_cluster.kube_cluster.id
   name        = each.key
   description = lookup(each.value, "description", null)
   version     = lookup(each.value, "version", var.cluster_version)
