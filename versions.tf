@@ -3,9 +3,10 @@ terraform {
 
   required_providers {
     nebius = {
-      source = "nebius/nebius"
+      source = "terraform-registry.storage.ai.nebius.cloud/nebius/nebius"
+      version = ">= 0.6.0"
     }
-
+    
     random = {
       source  = "hashicorp/random"
       version = "> 3.3"
