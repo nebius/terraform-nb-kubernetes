@@ -1,5 +1,5 @@
 # Security groups
-resource "yandex_vpc_security_group" "k8s_main_sg" {
+resource "nebius_vpc_security_group" "k8s_main_sg" {
   count       = var.enable_default_rules ? 1 : 0
   folder_id   = local.folder_id
   name        = "k8s-security-main-${random_string.unique_id.result}"
@@ -53,14 +53,14 @@ resource "yandex_vpc_security_group" "k8s_main_sg" {
 
   egress {
     protocol       = "ANY"
-    description    = "Rule allows all outgoing traffic. Nodes can connect to Yandex Container Registry, Yandex Object Storage, Docker Hub, and so on."
+    description    = "Rule allows all outgoing traffic. Nodes can connect to nebius Container Registry, nebius Object Storage, Docker Hub, and so on."
     v4_cidr_blocks = ["0.0.0.0/0"]
     from_port      = 0
     to_port        = 65535
   }
 }
 
-resource "yandex_vpc_security_group" "k8s_master_whitelist_sg" {
+resource "nebius_vpc_security_group" "k8s_master_whitelist_sg" {
   count       = var.enable_default_rules ? 1 : 0
   folder_id   = local.folder_id
   name        = "k8s-master-whitelist-${random_string.unique_id.result}"
@@ -82,7 +82,7 @@ resource "yandex_vpc_security_group" "k8s_master_whitelist_sg" {
   }
 }
 
-resource "yandex_vpc_security_group" "k8s_nodes_ssh_access_sg" {
+resource "nebius_vpc_security_group" "k8s_nodes_ssh_access_sg" {
   count       = var.enable_default_rules ? 1 : 0
   folder_id   = local.folder_id
   name        = "k8s-nodes-ssh-access-${random_string.unique_id.result}"
@@ -98,7 +98,7 @@ resource "yandex_vpc_security_group" "k8s_nodes_ssh_access_sg" {
 }
 
 # This group defines custom security rules
-resource "yandex_vpc_security_group" "k8s_custom_rules_sg" {
+resource "nebius_vpc_security_group" "k8s_custom_rules_sg" {
   count       = length(var.custom_ingress_rules) > 0 || length(var.custom_egress_rules) > 0 ? 1 : 0
   folder_id   = local.folder_id
   name        = "k8s-custom-rules-group-${random_string.unique_id.result}"
@@ -106,10 +106,10 @@ resource "yandex_vpc_security_group" "k8s_custom_rules_sg" {
   network_id  = var.network_id
 }
 
-resource "yandex_vpc_security_group_rule" "ingress_rules" {
+resource "nebius_vpc_security_group_rule" "ingress_rules" {
   for_each = var.custom_ingress_rules
 
-  security_group_binding = yandex_vpc_security_group.k8s_custom_rules_sg[0].id
+  security_group_binding = nebius_vpc_security_group.k8s_custom_rules_sg[0].id
   direction              = "ingress"
   description            = lookup(each.value, "description", null)
   v4_cidr_blocks         = lookup(each.value, "v4_cidr_blocks", [])
@@ -119,10 +119,10 @@ resource "yandex_vpc_security_group_rule" "ingress_rules" {
   protocol               = lookup(each.value, "protocol", "TCP")
 }
 
-resource "yandex_vpc_security_group_rule" "egress_rules" {
+resource "nebius_vpc_security_group_rule" "egress_rules" {
   for_each = var.custom_egress_rules
 
-  security_group_binding = yandex_vpc_security_group.k8s_custom_rules_sg[0].id
+  security_group_binding = nebius_vpc_security_group.k8s_custom_rules_sg[0].id
   direction              = "egress"
   description            = lookup(each.value, "description", null)
   v4_cidr_blocks         = lookup(each.value, "v4_cidr_blocks", [])

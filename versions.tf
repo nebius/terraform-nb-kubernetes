@@ -2,11 +2,11 @@ terraform {
   required_version = ">= 1.0.0"
 
   required_providers {
-    yandex = {
-      source  = "yandex-cloud/yandex"
-      version = "> 0.8"
+    nebius = {
+      source = "terraform-registry.storage.ai.nebius.cloud/nebius/nebius"
+      version = ">= 0.6.0"
     }
-
+    
     random = {
       source  = "hashicorp/random"
       version = "> 3.3"
@@ -15,8 +15,8 @@ terraform {
 }
 
 
-data "yandex_client_config" "client" {}
+data "nebius_client_config" "client" {}
 
-data "yandex_kubernetes_cluster" "kubernetes" {
-  name = yandex_kubernetes_cluster.kube_cluster.name
+data "nebius_kubernetes_cluster" "kubernetes" {
+  name = nebius_kubernetes_cluster.kube_cluster.name
 }
