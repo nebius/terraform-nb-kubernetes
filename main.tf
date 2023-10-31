@@ -9,10 +9,6 @@ locals {
 
   master_locations = length(var.master_locations) > 1 ? [] : var.master_locations
 
-  # Resources names with Unique ID
-  kms_key_name         = lookup(var.kms_key, "name", "k8s-kms-key")
-  kms_key_name_with_id = "${local.kms_key_name}-${random_string.unique_id.result}"
-
   security_groups_list = concat(var.security_groups_ids_list, var.enable_default_rules == true ? [
     nebius_vpc_security_group.k8s_main_sg[0].id,
     nebius_vpc_security_group.k8s_master_whitelist_sg[0].id,
@@ -46,12 +42,6 @@ resource "nebius_kubernetes_cluster" "kube_cluster" {
   node_service_account_id  = nebius_iam_service_account.node_account.id
   network_policy_provider  = var.enable_cilium_policy ? null : var.network_policy_provider
 
-  dynamic "kms_provider" {
-    for_each = var.create_kms ? compact([try(nebius_kms_symmetric_key.kms_key[local.kms_key_name_with_id].id, null)]) : []
-    content {
-      key_id = kms_provider.value
-    }
-  }
 
   dynamic "network_implementation" {
     for_each = var.enable_cilium_policy ? ["cilium"] : []

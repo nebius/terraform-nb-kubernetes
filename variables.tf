@@ -333,19 +333,6 @@ variable "container_runtime_type" {
   }
 }
 
-# KMS key
-variable "create_kms" {
-  description = "Flag for enabling or disabling KMS key creation."
-  type        = bool
-  default     = false # changed from y 
-}
-
-variable "kms_key" {
-  description = "KMS symmetric key parameters."
-  type        = any
-  default     = {}
-}
-
 # Security group
 variable "enable_default_rules" {
   description = <<-EOF

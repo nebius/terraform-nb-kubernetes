@@ -20,10 +20,6 @@ module "kube" {
   ]
 
 
-  kms_key = {
-    name = "kube-regional-kms-key"
-  }
-
   master_labels = {
     environment = "dev"
     owner       = "example"
