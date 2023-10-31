@@ -4,7 +4,6 @@
 
 - Create zonal Kubernetes cluster  
 - Create user defined Kubernetes node groups
-- Create service accounts and KMS encryption key for Kubernetes cluster
 - Easy to use in other resources via outputs
 
 ## Kubernetes cluster definition
