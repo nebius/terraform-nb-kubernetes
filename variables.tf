@@ -233,7 +233,7 @@ variable "node_groups" {
     
     Default values:
     ```
-      platform_id     = "standard-v3"
+      platform_id     = "standard-v2"
       node_cores      = 4
       node_memory     = 8
       node_gpus       = 0
@@ -301,7 +301,7 @@ variable "node_groups_defaults" {
   description = "Map of common default values for Node groups."
   type        = map(any)
   default = {
-    platform_id   = "standard-v3"
+    platform_id   = "standard-v2"
     node_cores    = 4
     node_memory   = 8
     node_gpus     = 0
