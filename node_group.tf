@@ -32,6 +32,15 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
       gpus          = lookup(each.value, "node_gpus", var.node_groups_defaults.node_gpus)
     }
 
+
+    dynamic "gpu_settings" {
+      for_each = compact([lookup(each.value, "gpu_cluster_id", null)])
+      content {
+        gpu_cluster_id = each.value.gpu_cluster_id
+        gpu_environment = "runc"
+      }
+    }
+
     boot_disk {
       type = lookup(each.value, "disk_type", var.node_groups_defaults.disk_type)
       size = lookup(each.value, "disk_size", var.node_groups_defaults.disk_size)
@@ -158,4 +167,5 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
       max_unavailable = each.value.max_unavailable
     }
   }
+
 }

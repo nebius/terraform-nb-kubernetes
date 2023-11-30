@@ -3,8 +3,8 @@ terraform {
 
   required_providers {
     nebius = {
-      source  = "nebius-cloud/nebius"
-      version = "> 0.8"
+      source = "terraform-registry.storage.ai.nebius.cloud/nebius/nebius"
+      version = ">= 0.6.0"
     }
     local = {
       source  = "hashicorp/local"
@@ -19,7 +19,7 @@ terraform {
 
 provider "nebius" {
   endpoint = "api.nemax.nebius.cloud:443"
-  folder_id = "b486jia0s4d3r67rcjfa"
+  folder_id = "bjer0eu4okh6vntopouq"
 }
 
 
