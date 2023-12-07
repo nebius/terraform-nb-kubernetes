@@ -62,3 +62,9 @@ resource "nebius_resourcemanager_folder_iam_member" "node_account" {
   role      = "container-registry.images.puller"
   member    = "serviceAccount:${nebius_iam_service_account.node_account.id}"
 }
+
+resource "nebius_resourcemanager_folder_iam_member" "node_account" {
+  folder_id = local.folder_id
+  role      = "monitoring.editor"
+  member    = "serviceAccount:${nebius_iam_service_account.node_account.id}"
+}
