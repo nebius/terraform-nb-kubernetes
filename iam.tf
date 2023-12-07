@@ -63,7 +63,7 @@ resource "nebius_resourcemanager_folder_iam_member" "node_account" {
   member    = "serviceAccount:${nebius_iam_service_account.node_account.id}"
 }
 
-resource "nebius_resourcemanager_folder_iam_member" "node_account" {
+resource "nebius_resourcemanager_folder_iam_member" "node_account_monitoring" {
   folder_id = local.folder_id
   role      = "monitoring.editor"
   member    = "serviceAccount:${nebius_iam_service_account.node_account.id}"
