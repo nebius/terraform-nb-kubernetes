@@ -6,10 +6,7 @@ terraform {
       source = "terraform-registry.storage.ai.nebius.cloud/nebius/nebius"
       version = ">= 0.6.0"
     }
-    local = {
-      source  = "hashicorp/local"
-      version = "2.2.3"
-    }
+    
     random = {
       source  = "hashicorp/random"
       version = "> 3.3"
@@ -17,12 +14,8 @@ terraform {
   }
 }
 
-provider "nebius" {
-  endpoint = "api.nemax.nebius.cloud:443"
-  folder_id = "bjer0eu4okh6vntopouq"
+data "nebius_client_config" "client" {}
+
+data "nebius_kubernetes_cluster" "kubernetes" {
+  name = nebius_kubernetes_cluster.kube_cluster.name
 }
-
-
-provider "local" {}
-
-provider "random" {}
