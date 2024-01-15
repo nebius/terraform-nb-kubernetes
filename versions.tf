@@ -4,7 +4,7 @@ terraform {
   required_providers {
     nebius = {
       source = "terraform-registry.storage.ai.nebius.cloud/nebius/nebius"
-      version = ">= 0.8.3"
+      version = ">= 0.6.0"
     }
     
     random = {
@@ -13,6 +13,7 @@ terraform {
     }
   }
 }
+
 
 data "nebius_client_config" "client" {}
 
