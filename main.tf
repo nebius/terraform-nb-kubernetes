@@ -89,14 +89,6 @@ resource "nebius_kubernetes_cluster" "kube_cluster" {
         }
       }
     }
-
-    master_logging {
-      enabled                    = var.master_logging.enabled
-      folder_id                  = local.folder_id
-      kube_apiserver_enabled     = var.master_logging.enabled_kube_apiserver
-      cluster_autoscaler_enabled = var.master_logging.enabled_autoscaler
-      events_enabled             = var.master_logging.enabled_events
-    }
   }
 
   timeouts {
