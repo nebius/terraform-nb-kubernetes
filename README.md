@@ -117,13 +117,12 @@ module "kube" {
 
 ## Configure Terraform for Nebius Cloud
 
-- Install [YC CLI](https://nebius.atlassian.net/wiki/spaces/NTPT/pages/6979777/Nebius.ai+Sandbox+cloud)
+- Install [NCP CLI](https://nebius.ai/docs/cli/operations/install-cli)
+- Authenticate using [Service Account authorization key](https://nebius.ai/docs/cli/operations/authentication/service-account)
 - Add environment variables for terraform authentication in Nebuis Cloud
 
 ```
-export YC_TOKEN=$(yc iam create-token)
-export YC_CLOUD_ID=$(yc config get cloud-id)
-export YC_FOLDER_ID=$(yc config get folder-id)
+export NCP_TOKEN=$(ncp iam create-token)
 ```
 
 
