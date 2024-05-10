@@ -37,7 +37,7 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
       for_each = compact([lookup(each.value, "gpu_cluster_id", null)])
       content {
         gpu_cluster_id = each.value.gpu_cluster_id
-        gpu_environment = "runc"
+        gpu_environment = each.value.gpu_environment
       }
     }
 
