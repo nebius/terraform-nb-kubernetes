@@ -73,7 +73,7 @@ variable "node_ipv4_cidr_mask_size" {
 
 variable "service_ipv4_range" {
   description = <<EOF
-    CIDR block. IP range from which Kubernetes service cluster IP addresses 
+    CIDR block. IP range from which Kubernetes service cluster IP addresses
     will be allocated from. It should not overlap with
     any subnet in the network the Kubernetes cluster located in
     EOF
@@ -113,7 +113,7 @@ variable "release_channel" {
 variable "network_policy_provider" {
   description = "Network policy provider for Kubernetes cluster"
   type        = string
-  default     = null #changed 
+  default     = null #changed
 }
 
 variable "enable_cilium_policy" {
@@ -223,14 +223,14 @@ variable "node_groups" {
      - If node groups version isn't defined, cluster version will be used instead of.
      - A master locations list must have only one location for zonal cluster and three locations for a regional.
      - All node groups are able to define own locations. These locations will be used at first.
-     - If own location aren't defined for node groups with auto scale policy, locations for these groups will be automatically generated from master locations. If node groups list have more than three groups, locations for them will be assigned from the beggining of the master locations list. So, all node groups will be distributed in a range of master locations. 
+     - If own location aren't defined for node groups with auto scale policy, locations for these groups will be automatically generated from master locations. If node groups list have more than three groups, locations for them will be assigned from the beggining of the master locations list. So, all node groups will be distributed in a range of master locations.
      - Master locations will be used for fixed scale node groups.
      - Auto repair and upgrade values will be used master_auto_upgrade value.
      - Master maintenance windows will be used for Node groups also!
      - Only one max_expansion OR max_unavailable values should be specified for the deployment policy.
-    
+
     Documentation - https://registry.terraform.io/providers/nebius-cloud/nebius/latest/docs/resources/kubernetes_node_group
-    
+
     Default values:
     ```
       platform_id     = "standard-v2"
@@ -356,7 +356,7 @@ variable "enable_default_rules" {
 variable "custom_ingress_rules" {
   description = <<-EOF
     Map definition of custom security ingress rules.
-    
+
     Example:
     ```
     custom_ingress_rules = {
@@ -390,7 +390,7 @@ variable "custom_ingress_rules" {
 variable "custom_egress_rules" {
   description = <<-EOF
     Map definition of custom security egress rules.
-    
+
     Example:
     ```
     custom_egress_rules = {
@@ -431,4 +431,22 @@ variable "pod_mtu" {
   description = "default pod mtu for networking"
   type        = number
   default     = 8880
+}
+
+variable "ssh_username" {
+  description = "Username for SSH login"
+  type        = string
+  default     = "ubuntu"
+}
+
+variable "ssh_public_key" {
+  description = "Public SSH key to access the cluster nodes"
+  type        = string
+  default     = null
+}
+
+variable "ssh_public_key_path" {
+  description = "Path to a SSH public key to access the cluster nodes"
+  type        = string
+  default     = "~/.ssh/id_rsa.pub"
 }

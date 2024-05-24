@@ -11,6 +11,9 @@ locals {
     ])
   ]...) : []
   master_locations_subnets_ids = concat(flatten([for location in var.master_locations : location.subnet_id]))
+
+  ssh_public_key = var.ssh_public_key != null ? var.ssh_public_key : (
+  fileexists(var.ssh_public_key_path) ? file(var.ssh_public_key_path) : null)
 }
 
 resource "nebius_kubernetes_node_group" "kube_node_groups" {
@@ -32,11 +35,14 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
       gpus          = lookup(each.value, "node_gpus", var.node_groups_defaults.node_gpus)
     }
 
+    metadata = {
+      ssh-keys = local.ssh_public_key != null ? "${var.ssh_username}:${local.ssh_public_key}" : null
+    }
 
     dynamic "gpu_settings" {
       for_each = compact([lookup(each.value, "gpu_cluster_id", null)])
       content {
-        gpu_cluster_id = each.value.gpu_cluster_id
+        gpu_cluster_id  = each.value.gpu_cluster_id
         gpu_environment = each.value.gpu_environment
       }
     }
