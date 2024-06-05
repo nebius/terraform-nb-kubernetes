@@ -1,19 +1,16 @@
 locals {
   # Generating node groups locations list for auto_scale policy
-  chunked_node_groups_keys = var.node_groups != null ? chunklist(tolist(keys(var.node_groups)), length(var.master_locations)) : []
+  chunked_node_groups_keys = var.node_groups != null ? chunklist(tolist(keys(var.node_groups)), length(var.node_locations)) : []
   auto_node_groups_locations = length(local.chunked_node_groups_keys) > 0 ? concat([
     for x, list in local.chunked_node_groups_keys : concat([
       for y, name in list : {
         node_group_name = name
-        zone            = var.master_locations[y]["zone"]
-        subnet_id       = var.master_locations[y]["subnet_id"]
+        zone            = var.node_locations[y]["zone"]
+        subnet_id       = var.node_locations[y]["subnet_id"]
       }
     ])
   ]...) : []
-  master_locations_subnets_ids = concat(flatten([for location in var.master_locations : location.subnet_id]))
-
-  ssh_public_key = var.ssh_public_key != null ? var.ssh_public_key : (
-  fileexists(var.ssh_public_key_path) ? file(var.ssh_public_key_path) : null)
+  node_locations_subnets_ids = concat(flatten([for location in var.node_locations : location.subnet_id]))
 }
 
 resource "nebius_kubernetes_node_group" "kube_node_groups" {
@@ -35,14 +32,11 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
       gpus          = lookup(each.value, "node_gpus", var.node_groups_defaults.node_gpus)
     }
 
-    metadata = {
-      ssh-keys = local.ssh_public_key != null ? "${var.ssh_username}:${local.ssh_public_key}" : null
-    }
 
     dynamic "gpu_settings" {
       for_each = compact([lookup(each.value, "gpu_cluster_id", null)])
       content {
-        gpu_cluster_id  = each.value.gpu_cluster_id
+        gpu_cluster_id = each.value.gpu_cluster_id
         gpu_environment = each.value.gpu_environment
       }
     }
@@ -69,7 +63,7 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
         for location in each.value["node_locations"] : location.subnet_id]
         ) : can(each.value["auto_scale"]) ? flatten([
           for location in local.auto_node_groups_locations : [location.subnet_id] if location.node_group_name == each.key
-      ]) : local.master_locations_subnets_ids
+      ]) : local.node_locations_subnets_ids
 
       nat                = lookup(each.value, "nat", var.node_groups_defaults.nat)
       ipv4               = lookup(each.value, "ipv4", var.node_groups_defaults.ipv4)
@@ -140,7 +134,7 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
           subnet_id = location.subnet_id
         }
         if location.node_group_name == each.key
-      ] : var.master_locations
+      ] : var.node_locations
 
       content {
         zone = location.value.zone
