@@ -1,12 +1,18 @@
 locals {
   # Generating node groups locations list for auto_scale policy
-  chunked_node_groups_keys = var.node_groups != null ? chunklist(tolist(keys(var.node_groups)), length(var.node_locations)) : []
+  node_locations = length(var.node_locations) == 0 ? [
+    {
+      zone      = element(var.master_locations, 0).zone
+      subnet_id = element(var.master_locations, 0).subnet_id
+    }
+  ] : var.node_locations
+  chunked_node_groups_keys = var.node_groups != null ? chunklist(tolist(keys(var.node_groups)), length(local.node_locations)) : []
   auto_node_groups_locations = length(local.chunked_node_groups_keys) > 0 ? concat([
     for x, list in local.chunked_node_groups_keys : concat([
       for y, name in list : {
         node_group_name = name
-        zone            = var.node_locations[y]["zone"]
-        subnet_id       = var.node_locations[y]["subnet_id"]
+        zone            = local.node_locations[y]["zone"]
+        subnet_id       = local.node_locations[y]["subnet_id"]
       }
     ])
   ]...) : []
@@ -140,7 +146,7 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
           subnet_id = location.subnet_id
         }
         if location.node_group_name == each.key
-      ] : var.node_locations
+      ] : local.node_locations
 
       content {
         zone = location.value.zone
