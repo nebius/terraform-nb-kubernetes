@@ -462,8 +462,9 @@ variable "node_locations" {
     zone      = string
     subnet_id = string
   }))
+  default = []
   validation {
-    condition     = contains([1, 3], length(var.node_locations))
-    error_message = "Node locations list should have only one location for Zonal cluster and three locations for Regional!"
+    condition     = contains([0, 1, 3], length(var.node_locations))
+    error_message = "Node locations list should have either 0 elements (to use master locations), one location for Zonal cluster, or three locations for Regional cluster!"
   }
 }
