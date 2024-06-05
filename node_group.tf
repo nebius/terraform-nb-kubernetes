@@ -17,7 +17,7 @@ locals {
     ])
   ]...) : []
   master_locations_subnets_ids = concat(flatten([for location in var.master_locations : location.subnet_id]))
-  node_locations_subnets_ids = concat(flatten([for location in var.node_locations : location.subnet_id]))
+  node_locations_subnets_ids = concat(flatten([for location in local.node_locations : location.subnet_id]))
   ssh_public_key = var.ssh_public_key != null ? var.ssh_public_key : (
   fileexists(var.ssh_public_key_path) ? file(var.ssh_public_key_path) : null)
 }
