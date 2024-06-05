@@ -1,6 +1,6 @@
-
 locals {
   folder_id = var.folder_id == null ? data.nebius_client_config.client.folder_id : var.folder_id
+  node_locations = length(var.node_locations) == 0 ? [var.master_locations[0]] : var.node_locations
 
   master_regions = length(var.master_locations) > 1 ? [{
     region    = var.master_region
