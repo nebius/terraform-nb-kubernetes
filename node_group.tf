@@ -16,8 +16,29 @@ locals {
   fileexists(var.ssh_public_key_path) ? file(var.ssh_public_key_path) : null)
 }
 
+locals {
+  # Handle node locations, falling back to master locations if node locations are not provided
+  effective_node_groups = {
+    for key, value in var.node_groups : key => merge(value, {
+      node_locations = try(value.node_locations, [])
+    })
+  }
+
+  # Fallback to master locations if node_locations is empty
+  effective_node_locations = {
+    for key, value in local.effective_node_groups : key => merge(value, {
+      node_locations = length(value.node_locations) == 0 ? [
+        {
+          zone      = element(var.master_locations, 0).zone
+          subnet_id = element(var.master_locations, 0).subnet_id
+        }
+      ] : value.node_locations
+    })
+  }
+}
+
 resource "nebius_kubernetes_node_group" "kube_node_groups" {
-  for_each = var.node_groups
+  for_each = local.effective_node_locations
 
   cluster_id  = nebius_kubernetes_cluster.kube_cluster.id
   name        = each.key
@@ -43,9 +64,7 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
       for_each = [each.value]
       content {
         gpu_environment = lookup(gpu_settings.value, "gpu_environment", null)
-
-        # Conditionally add gpu_cluster_id if it exists
-        gpu_cluster_id = lookup(gpu_settings.value, "gpu_cluster_id", null)
+        gpu_cluster_id  = lookup(gpu_settings.value, "gpu_cluster_id", null)
       }
     }
 
@@ -66,10 +85,8 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
     }
 
     network_interface {
-      subnet_ids = can(each.value["node_locations"]) ? flatten([
-        for location in each.value["node_locations"] : location.subnet_id]
-        ) : can(each.value["auto_scale"]) ? flatten([
-          for location in local.auto_node_groups_locations : [location.subnet_id] if location.node_group_name == each.key
+      subnet_ids = can(each.value.node_locations) ? flatten([
+        for location in each.value.node_locations : location.subnet_id
       ]) : local.master_locations_subnets_ids
 
       nat                = lookup(each.value, "nat", var.node_groups_defaults.nat)
@@ -134,7 +151,7 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
 
   allocation_policy {
     dynamic "location" {
-      for_each = can(each.value["node_locations"]) ? each.value["node_locations"] : can(each.value["auto_scale"]) ? [
+      for_each = can(each.value.node_locations) ? each.value.node_locations : can(each.value.auto_scale) ? [
         for location in local.auto_node_groups_locations : {
           zone      = location.zone
           subnet_id = location.subnet_id
@@ -163,7 +180,7 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
   }
 
   dynamic "deploy_policy" {
-    for_each = anytrue([can(each.value["max_expansion"]), can(each.value["max_unavailable"])]) ? [{
+    for_each = anytrue([can(each.value.max_expansion), can(each.value.max_unavailable)]) ? [{
       max_expansion   = each.value.max_expansion
       max_unavailable = each.value.max_unavailable
     }] : []
