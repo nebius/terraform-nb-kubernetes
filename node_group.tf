@@ -45,12 +45,9 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
       ssh-keys = local.ssh_public_key != null ? "${var.ssh_username}:${local.ssh_public_key}" : null
     }
 
-    dynamic "gpu_settings" {
-      for_each = compact([lookup(each.value, "gpu_cluster_id", null)])
-      content {
-        gpu_cluster_id  = each.value.gpu_cluster_id
-        gpu_environment = each.value.gpu_environment
-      }
+    gpu_settings {
+      gpu_cluster_id  = lookup(each.value, "gpu_cluster_id", null)
+      gpu_environment = lookup(each.value, "gpu_environment", null)
     }
 
     boot_disk {
