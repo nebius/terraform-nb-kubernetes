@@ -1,44 +1,32 @@
 locals {
+  # Handle node locations, falling back to the first record of master locations if node locations are empty
+  node_locations = length(var.node_locations) == 0 ? [
+    {
+      zone      = element(var.master_locations, 0).zone
+      subnet_id = element(var.master_locations, 0).subnet_id
+    }
+  ] : var.node_locations
+
   # Generating node groups locations list for auto_scale policy
-  chunked_node_groups_keys = var.node_groups != null ? chunklist(tolist(keys(var.node_groups)), length(var.master_locations)) : []
+  chunked_node_groups_keys = var.node_groups != null ? chunklist(tolist(keys(var.node_groups)), length(local.node_locations)) : []
   auto_node_groups_locations = length(local.chunked_node_groups_keys) > 0 ? concat([
     for x, list in local.chunked_node_groups_keys : concat([
       for y, name in list : {
         node_group_name = name
-        zone            = var.master_locations[y]["zone"]
-        subnet_id       = var.master_locations[y]["subnet_id"]
+        zone            = local.node_locations[y]["zone"]
+        subnet_id       = local.node_locations[y]["subnet_id"]
       }
     ])
   ]...) : []
   master_locations_subnets_ids = concat(flatten([for location in var.master_locations : location.subnet_id]))
+  node_locations_subnets_ids = concat(flatten([for location in local.node_locations : location.subnet_id]))
 
   ssh_public_key = var.ssh_public_key != null ? var.ssh_public_key : (
   fileexists(var.ssh_public_key_path) ? file(var.ssh_public_key_path) : null)
 }
 
-locals {
-  # Handle node locations, falling back to master locations if node locations are not provided
-  effective_node_groups = {
-    for key, value in var.node_groups : key => merge(value, {
-      node_locations = try(value.node_locations, [])
-    })
-  }
-
-  # Fallback to master locations if node_locations is empty
-  effective_node_locations = {
-    for key, value in local.effective_node_groups : key => merge(value, {
-      node_locations = length(value.node_locations) == 0 ? [
-        {
-          zone      = element(var.master_locations, 0).zone
-          subnet_id = element(var.master_locations, 0).subnet_id
-        }
-      ] : value.node_locations
-    })
-  }
-}
-
 resource "nebius_kubernetes_node_group" "kube_node_groups" {
-  for_each = local.effective_node_locations
+  for_each = var.node_groups
 
   cluster_id  = nebius_kubernetes_cluster.kube_cluster.id
   name        = each.key
@@ -61,10 +49,12 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
     }
 
     dynamic "gpu_settings" {
-      for_each = [each.value]
+      for_each = lookup(each.value, "gpu_environment", null) != null ? [each.value] : []
       content {
-        gpu_environment = lookup(gpu_settings.value, "gpu_environment", null)
-        gpu_cluster_id  = lookup(gpu_settings.value, "gpu_cluster_id", null)
+        gpu_environment = lookup(each.value, "gpu_environment", null)
+
+        # Conditionally add gpu_cluster_id if it exists
+        gpu_cluster_id = lookup(each.value, "gpu_cluster_id", null)
       }
     }
 
@@ -85,9 +75,11 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
     }
 
     network_interface {
-      subnet_ids = can(each.value.node_locations) ? flatten([
-        for location in each.value.node_locations : location.subnet_id
-      ]) : local.master_locations_subnets_ids
+      subnet_ids = can(each.value["node_locations"]) ? flatten([
+        for location in each.value["node_locations"] : location.subnet_id]
+        ) : can(each.value["auto_scale"]) ? flatten([
+          for location in local.auto_node_groups_locations : [location.subnet_id] if location.node_group_name == each.key
+      ]) : local.node_locations_subnets_ids
 
       nat                = lookup(each.value, "nat", var.node_groups_defaults.nat)
       ipv4               = lookup(each.value, "ipv4", var.node_groups_defaults.ipv4)
@@ -151,13 +143,13 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
 
   allocation_policy {
     dynamic "location" {
-      for_each = can(each.value.node_locations) ? each.value.node_locations : can(each.value.auto_scale) ? [
+      for_each = can(each.value["node_locations"]) ? each.value["node_locations"] : can(each.value["auto_scale"]) ? [
         for location in local.auto_node_groups_locations : {
           zone      = location.zone
           subnet_id = location.subnet_id
         }
         if location.node_group_name == each.key
-      ] : var.master_locations
+      ] : local.node_locations
 
       content {
         zone = location.value.zone
@@ -180,7 +172,7 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
   }
 
   dynamic "deploy_policy" {
-    for_each = anytrue([can(each.value.max_expansion), can(each.value.max_unavailable)]) ? [{
+    for_each = anytrue([can(each.value["max_expansion"]), can(each.value["max_unavailable"])]) ? [{
       max_expansion   = each.value.max_expansion
       max_unavailable = each.value.max_unavailable
     }] : []
