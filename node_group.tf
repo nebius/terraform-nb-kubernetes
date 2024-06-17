@@ -110,7 +110,13 @@ resource "nebius_kubernetes_node_group" "kube_node_groups" {
     }
   }
 
-  node_labels            = try(each.value.node_labels, null)
+  node_labels = merge(
+    try(each.value.node_labels, {}),
+    {
+      "nebius.com/group-name" = each.key
+    }
+  )
+
   node_taints            = try(each.value.node_taints, null)
   allowed_unsafe_sysctls = try(each.value.allowed_unsafe_sysctls, null)
 
