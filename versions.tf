@@ -14,9 +14,4 @@ terraform {
   }
 }
 
-
 data "nebius_client_config" "client" {}
-
-data "nebius_kubernetes_cluster" "kubernetes" {
-  name = nebius_kubernetes_cluster.kube_cluster.name
-}
