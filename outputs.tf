@@ -23,7 +23,7 @@ output "cluster_ca_certificate" {
   value       = nebius_kubernetes_cluster.kube_cluster.master[0].cluster_ca_certificate
 }
 
-# public ip with kube config download command 
+# public ip with kube config download command
 output "external_cluster_cmd" {
   description = <<EOF
     Kubernetes cluster public IP address.
@@ -44,4 +44,9 @@ output "internal_cluster_cmd" {
     Note: Kubernetes internal cluster nodes are available from the virtual machines in the same VPC as cluster nodes.
   EOF
   value       = var.public_access == false ? "ncp managed-kubernetes cluster get-credentials --id ${nebius_kubernetes_cluster.kube_cluster.id} --internal" : null
+}
+
+output "cluster_node_groups" {
+  description = "Kubernetes node groups spec"
+  value = nebius_kubernetes_node_group.kube_node_groups
 }
