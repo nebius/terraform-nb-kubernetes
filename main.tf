@@ -1,4 +1,3 @@
-
 locals {
   folder_id = var.folder_id == null ? data.nebius_client_config.client.folder_id : var.folder_id
 

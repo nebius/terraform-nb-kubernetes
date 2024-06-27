@@ -3,7 +3,7 @@
 module "kube" {
   source = "../../"
 
-  network_id =  "btcci5d99ka84l988qvs"
+  network_id = "btcci5d99ka84l988qvs"
 
   master_locations = [
     {
@@ -28,7 +28,7 @@ module "kube" {
     }
   ]
   node_groups = {
-   "k8s-ng-h100-8gpu1" = {
+    "k8s-ng-h100-8gpu1" = {
       description = "Kubernetes nodes h100-8-gpu nodes with autoscaling"
       fixed_scale = {
         size = 2
@@ -40,12 +40,10 @@ module "kube" {
       node_gpus       = 8
       disk_type       = "network-ssd-nonreplicated"
       disk_size       = 372
-      nat = true
+      nat             = true
       node_labels = {
         "group" = "h100-8gpu"
       }
     }
   }
 }
-
-

@@ -2,7 +2,7 @@
 
 ## Features
 
-- Create zonal Kubernetes cluster  
+- Create zonal Kubernetes cluster
 - Create user defined Kubernetes node groups
 - Easy to use in other resources via outputs
 
@@ -63,11 +63,11 @@ module "kube" {
       subnet_id = "e9b3k97pr2nh1i80as04"
     },
     {
-      zone      = "eu-north1-b" 
+      zone      = "eu-north1-b"
       subnet_id = "e2laaglsc7u99ur8c4j1"
     },
     {
-      zone      = "eu-north1-c" 
+      zone      = "eu-north1-c"
       subnet_id = "b0ckjm3olbpmk2t6c28o"
     }
   ]
@@ -206,6 +206,9 @@ No modules.
 | <a name="input_service_ipv4_range"></a> [service\_ipv4\_range](#input\_service\_ipv4\_range) | CIDR block. IP range from which Kubernetes service cluster IP addresses <br>    will be allocated from. It should not overlap with<br>    any subnet in the network the Kubernetes cluster located in | `string` | `"172.18.0.0/16"` | no |
 | <a name="input_service_ipv6_range"></a> [service\_ipv6\_range](#input\_service\_ipv6\_range) | IPv6 CIDR block. IP range for allocating pod addresses. | `string` | `null` | no |
 | <a name="input_timeouts"></a> [timeouts](#input\_timeouts) | Timeouts. | `map(string)` | <pre>{<br>  "create": "60m",<br>  "delete": "60m",<br>  "update": "60m"<br>}</pre> | no |
+| <a name="ssh_username"></a> [ssh_username](#input\_ssh_username) | SSH Username. | `map(string)` | <pre>{<br>  "create": "60m",<br>  "delete": "60m",<br>  "update": "60m"<br>}</pre> | no |
+| <a name="ssh_public_key"></a> [ssh_public_key](#input\_ssh_public_key) | SSH Public key content. | `map(string)` | <pre>{<br>  "create": "60m",<br>  "delete": "60m",<br>  "update": "60m"<br>}</pre> | no |
+| <a name="ssh_public_key_path"></a> [ssh_public_key_path](#input\_ssh_public_key_path) | Path to SSH Public key file. | `map(string)` | <pre>{<br>  "create": "60m",<br>  "delete": "60m",<br>  "update": "60m"<br>}</pre> | no |
 
 ## Outputs
 
